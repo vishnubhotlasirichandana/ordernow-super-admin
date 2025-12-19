@@ -11,8 +11,9 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // If 401 Unauthorized, backend cookie is likely invalid/expired
+    // ✅ FIX: Only redirect to login if we are NOT already on the login page
+    // This prevents the "Invalid Credentials" error from refreshing the page
+    if (error.response && error.response.status === 401 && window.location.pathname !== '/login') {
       localStorage.removeItem('adminData');
       window.location.href = '/login';
     }
