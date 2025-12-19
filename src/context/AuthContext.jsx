@@ -8,10 +8,14 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if we have user data persisted (The actual auth check happens via cookie on API calls)
+    // Check localStorage on mount
     const storedAdmin = localStorage.getItem('adminData');
     if (storedAdmin) {
-      setAdmin(JSON.parse(storedAdmin));
+      try {
+        setAdmin(JSON.parse(storedAdmin));
+      } catch (e) {
+        localStorage.removeItem('adminData');
+      }
     }
     setLoading(false);
   }, []);
@@ -21,23 +25,28 @@ export const AuthProvider = ({ children }) => {
       // Calls POST /api/auth/admin/login
       const res = await api.post('/auth/admin/login', { email, password });
       
-      // Save non-sensitive user info
-      localStorage.setItem('adminData', JSON.stringify(res.data.data));
-      setAdmin(res.data.data);
-      return { success: true };
+      // Save user info
+      if (res.data?.data) {
+        localStorage.setItem('adminData', JSON.stringify(res.data.data));
+        setAdmin(res.data.data);
+        return { success: true };
+      }
+      return { success: false, message: 'Invalid response from server' };
     } catch (error) {
+      console.error("Login Error:", error);
       return { success: false, message: error.response?.data?.message || 'Login failed' };
     }
   };
 
   const logout = async () => {
     try {
-      await api.post('/auth/logout'); // Clear backend cookie
+      await api.post('/auth/logout');
     } catch (err) {
       console.error("Logout error", err);
     } finally {
       localStorage.removeItem('adminData');
       setAdmin(null);
+      // Force redirect handled by ProtectedRoute or component
     }
   };
 

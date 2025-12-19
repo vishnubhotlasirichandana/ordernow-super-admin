@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
-import { FaStore, FaCheckCircle, FaTimesCircle, FaClock } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import { Store, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0 });
 
   useEffect(() => {
-    // Fetch all restaurants to calculate stats since backend doesn't have a specific stats endpoint
-    api.get('/admin/restaurants?limit=1000') // Fetch plenty for stats
+    api.get('/admin/restaurants?limit=1000')
       .then(res => {
-        const data = res.data.data;
-        // Logic to count based on documents verification status
+        const data = res.data.data || [];
         const pending = data.filter(r => r.documents?.verificationStatus === 'pending').length;
         const approved = data.filter(r => r.documents?.verificationStatus === 'approved').length;
         const rejected = data.filter(r => r.documents?.verificationStatus === 'rejected').length;
@@ -19,27 +18,35 @@ const Dashboard = () => {
       .catch(err => console.error(err));
   }, []);
 
-  const StatCard = ({ title, count, icon, color }) => (
-    <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-      <div style={{ background: color, padding: '15px', borderRadius: '50%', color: 'white', display: 'flex' }}>
-        {icon}
+  const StatCard = ({ title, count, icon: Icon, colorClass, bgClass }) => (
+    <motion.div 
+      variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+      className="bg-white p-6 rounded-2xl shadow-soft border border-slate-100 flex items-center gap-4"
+    >
+      <div className={`p-4 rounded-xl ${bgClass} ${colorClass}`}>
+        <Icon size={24} />
       </div>
       <div>
-        <h3 style={{ margin: 0, fontSize: '2rem', color: 'var(--text-main)' }}>{count}</h3>
-        <p style={{ margin: 0, color: 'var(--text-muted)' }}>{title}</p>
+        <h3 className="text-3xl font-bold text-slate-800">{count}</h3>
+        <p className="text-slate-500 font-medium">{title}</p>
       </div>
-    </div>
+    </motion.div>
   );
 
   return (
-    <div>
-      <h1 style={{ marginBottom: '20px' }}>Dashboard Overview</h1>
-      <div className="grid-cols-1 grid-cols-4" style={{ display: 'grid', gap: '20px' }}>
-        <StatCard title="Total Restaurants" count={stats.total} icon={<FaStore size={24} />} color="#3b82f6" />
-        <StatCard title="Pending Review" count={stats.pending} icon={<FaClock size={24} />} color="#eab308" />
-        <StatCard title="Approved" count={stats.approved} icon={<FaCheckCircle size={24} />} color="#22c55e" />
-        <StatCard title="Rejected" count={stats.rejected} icon={<FaTimesCircle size={24} />} color="#ef4444" />
-      </div>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-slate-900">Overview</h1>
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+      >
+        <StatCard title="Total Restaurants" count={stats.total} icon={Store} bgClass="bg-blue-50" colorClass="text-blue-600" />
+        <StatCard title="Pending Review" count={stats.pending} icon={Clock} bgClass="bg-amber-50" colorClass="text-amber-600" />
+        <StatCard title="Approved" count={stats.approved} icon={CheckCircle} bgClass="bg-green-50" colorClass="text-green-600" />
+        <StatCard title="Rejected" count={stats.rejected} icon={XCircle} bgClass="bg-red-50" colorClass="text-red-600" />
+      </motion.div>
     </div>
   );
 };

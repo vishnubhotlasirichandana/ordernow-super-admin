@@ -1,55 +1,83 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
+import { motion } from 'framer-motion';
+import { User, Mail, Phone, MapPin, Calendar } from 'lucide-react';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
-  const [role, setRole] = useState('customer');
+  const [loading, setLoading] = useState(true);
 
-  const fetchUsers = () => {
-    // Calls GET /api/admin/users?userType=customer
-    api.get(`/admin/users?userType=${role}`)
-      .then(res => setUsers(res.data.data))
-      .catch(err => console.error(err));
-  };
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
-  useEffect(() => { fetchUsers(); }, [role]);
-
-  const toggleUser = async (id, currentStatus) => {
+  const fetchUsers = async () => {
     try {
-      await api.patch(`/admin/users/${id}/toggle-active`, { isActive: !currentStatus });
-      fetchUsers(); // Refresh list
-    } catch(err) { alert("Failed"); }
+      const res = await api.get('/admin/users');
+      setUsers(res.data.data || []);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div>
-      <div style={{ marginBottom: '20px' }}>
-        <h1>User Management</h1>
-        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-            <button className={`btn ${role === 'customer' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setRole('customer')}>Customers</button>
-            <button className={`btn ${role === 'delivery_partner' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setRole('delivery_partner')}>Delivery Partners</button>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-slate-900">Users & Delivery</h1>
+        <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200 text-sm font-medium text-slate-600">
+          Total: {users.length}
         </div>
       </div>
 
-      <div className="grid-cols-1" style={{ display: 'grid', gap: '15px' }}>
-        {users.map(user => (
-            <div key={user._id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                    <h3 style={{ margin: 0 }}>{user.fullName}</h3>
-                    <p style={{ margin: 0, color: 'var(--text-muted)' }}>{user.email}</p>
-                    <p style={{ margin: 0, fontSize: '0.9rem' }}>Phone: {user.phoneNumber || 'N/A'}</p>
+      {loading ? (
+        <div className="text-center py-20 text-slate-400">Loading users...</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {users.map((user, i) => (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              key={user._id} 
+              className="bg-white p-5 rounded-2xl shadow-soft border border-slate-100 flex flex-col gap-3"
+            >
+              <div className="flex items-center gap-3 border-b border-slate-50 pb-3">
+                <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center text-primary-600">
+                  <User size={20} />
                 </div>
-                <button 
-                    className={user.isActive ? "btn btn-outline" : "btn btn-success"}
-                    onClick={() => toggleUser(user._id, user.isActive)}
-                    style={{ borderColor: user.isActive ? 'red' : 'green', color: user.isActive ? 'red' : 'white' }}
-                >
-                    {user.isActive ? "Block" : "Activate"}
-                </button>
-            </div>
-        ))}
-      </div>
+                <div>
+                  <h3 className="font-bold text-slate-800">{user.fullName}</h3>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 capitalize">
+                    {user.role}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-2 text-sm text-slate-600">
+                <div className="flex items-center gap-2">
+                  <Mail size={14} className="text-slate-400" />
+                  <span className="truncate">{user.email}</span>
+                </div>
+                {user.phoneNumber && (
+                  <div className="flex items-center gap-2">
+                    <Phone size={14} className="text-slate-400" />
+                    <span>{user.phoneNumber}</span>
+                  </div>
+                )}
+                {/* Fallback for created date if available in your API */}
+                <div className="flex items-center gap-2 text-slate-400 text-xs mt-2">
+                  <Calendar size={12} />
+                  <span>ID: {user._id.slice(-6)}</span>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
+
 export default Users;
