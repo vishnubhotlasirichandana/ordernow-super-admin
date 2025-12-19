@@ -2,8 +2,9 @@ import axios from 'axios';
 
 // Create an axios instance
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api', // MATCHES YOUR BACKEND .ENV PORT
-  withCredentials: true, // MANDATORY: Sends the HttpOnly cookie for auth
+  // Use the Environment Variable so it works on Vercel
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  withCredentials: true,
 });
 
 // Response interceptor to handle session expiration
