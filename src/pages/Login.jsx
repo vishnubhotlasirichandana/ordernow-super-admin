@@ -26,41 +26,41 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface p-4">
+    <div className="min-h-screen flex items-center justify-center bg-surface dark:bg-slate-900 p-4 transition-colors">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white p-8 rounded-2xl shadow-soft border border-slate-100"
+        className="w-full max-w-md bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-soft border border-slate-100 dark:border-slate-700"
       >
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-slate-900">OrderNow Admin</h2>
-          <p className="text-slate-500 mt-2">Sign in to manage the platform</p>
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white">OrderNow Admin</h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Sign in to manage the platform</p>
         </div>
         
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 text-red-600 dark:text-red-400 rounded-xl text-sm">
             {error}
           </div>
         )}
         
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
             <input 
               type="email" 
               required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary-100 outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary-100 outline-none transition-all"
               placeholder="admin@example.com"
               value={email} 
               onChange={e => setEmail(e.target.value)} 
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Password</label>
             <input 
               type="password" 
               required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary-100 outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary-100 outline-none transition-all"
               placeholder="••••••••"
               value={password} 
               onChange={e => setPassword(e.target.value)} 
