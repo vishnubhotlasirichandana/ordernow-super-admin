@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class', // <--- Enables toggleable dark mode
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -15,14 +15,8 @@ export default {
           100: '#ffedd5',
           600: '#ea580c'
         },
-        surface: '#F1F5F9',
+        surface: '#F1F5F9', // Light gray background
         card: '#FFFFFF',
-        // Dark mode specific colors (optional, but good for reference)
-        dark: {
-          surface: '#0F172A',
-          card: '#1E293B',
-          border: '#334155'
-        }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

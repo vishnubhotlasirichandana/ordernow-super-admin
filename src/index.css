@@ -4,11 +4,11 @@
 
 @layer base {
   body {
-    @apply bg-surface text-slate-800 antialiased;
+    @apply bg-surface text-slate-800 dark:text-slate-200 dark:bg-slate-900 antialiased transition-colors duration-300;
   }
 }
 
-/* Smooth, modern scrollbar styling */
+/* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -17,5 +17,5 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 rounded-full;
+  @apply bg-slate-300 dark:bg-slate-600 rounded-full;
 }
