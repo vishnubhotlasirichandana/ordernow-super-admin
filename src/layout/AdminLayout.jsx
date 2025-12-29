@@ -7,7 +7,6 @@ import { LayoutDashboard, Store, Users, LogOut, Menu, Sun, Moon } from 'lucide-r
 
 export default function AdminLayout() {
   const { admin, logout } = useContext(AuthContext);
-  // If you haven't implemented ThemeContext yet, remove 'theme' and 'toggleTheme' and the button below
   const { theme, toggleTheme } = useTheme(); 
   
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -21,7 +20,7 @@ export default function AdminLayout() {
 
   const navItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/restaurants', icon: Store, label: 'Restaurants' },
+    { to: '/restaurants', icon: Store, label: 'Pending Verifications' }, // Updated Label
     { to: '/users', icon: Users, label: 'Users & Delivery' },
   ];
 
