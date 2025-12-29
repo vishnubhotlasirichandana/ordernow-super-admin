@@ -17,12 +17,24 @@ const RestaurantDetails = () => {
   }, [id]);
 
   const handleVerification = async (status) => {
-    if(!window.confirm(`Confirm ${status}?`)) return;
+    if (status === 'rejected' && !remarks.trim()) {
+        alert("Please provide a reason for rejection.");
+        return;
+    }
+    
+    const confirmMsg = status === 'rejected' 
+        ? "REJECT and DELETE this application? This cannot be undone."
+        : "APPROVE this restaurant?";
+
+    if(!window.confirm(confirmMsg)) return;
+
     try {
       await api.patch(`/admin/restaurants/${id}/verify`, { verificationStatus: status, remarks });
       alert('Updated successfully');
       navigate('/restaurants');
-    } catch (err) { alert("Action failed"); }
+    } catch (err) { 
+        alert(err.response?.data?.message || "Action failed"); 
+    }
   };
 
   const toggleActive = async () => {
@@ -33,71 +45,88 @@ const RestaurantDetails = () => {
     } catch (err) { alert("Action failed"); }
   };
 
-  if (loading) return <div className="card">Loading...</div>;
-  if (!data) return <div className="card">Not found</div>;
+  if (loading) return <div className="p-8 text-center text-gray-500">Loading...</div>;
+  if (!data) return <div className="p-8 text-center text-gray-500">Not found</div>;
 
   const docs = data.documents || {};
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      <button onClick={() => navigate(-1)} className="btn btn-outline" style={{ marginBottom: '20px' }}>&larr; Back</button>
+    <div className="max-w-5xl mx-auto space-y-6">
+      <button onClick={() => navigate(-1)} className="text-sm text-slate-500 hover:text-slate-800 flex items-center gap-1 mb-4">
+        &larr; Back to list
+      </button>
       
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-          <h1>{data.restaurantName}</h1>
-          <div style={{ display: 'flex', gap: '10px' }}>
-             <button className={data.isActive ? "btn btn-success" : "btn btn-danger"} onClick={toggleActive}>
-                {data.isActive ? "Active (Click to Deactivate)" : "Inactive (Click to Activate)"}
-             </button>
-          </div>
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">{data.restaurantName}</h1>
+          <button 
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${data.isActive ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-red-100 text-red-700 hover:bg-red-200"}`} 
+            onClick={toggleActive}
+          >
+             {data.isActive ? "Active (Deactivate)" : "Inactive (Activate)"}
+          </button>
         </div>
         
-        <div className="grid-cols-1 grid-cols-2" style={{ display: 'grid', gap: '20px', marginTop: '20px' }}>
-            <div>
-                <p><strong>Owner:</strong> {data.ownerFullName}</p>
-                <p><strong>Email:</strong> {data.email}</p>
-                <p><strong>Phone:</strong> {data.phoneNumber}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+            <div className="space-y-3">
+                <p><span className="font-semibold text-gray-500 block">Owner Name</span> {data.ownerFullName}</p>
+                <p><span className="font-semibold text-gray-500 block">Email</span> {data.email}</p>
+                <p><span className="font-semibold text-gray-500 block">Phone</span> {data.phoneNumber}</p>
             </div>
-            <div>
-                <p><strong>Address:</strong> {data.address?.fullAddress || 'N/A'}</p>
-                <p><strong>Type:</strong> {data.restaurantType}</p>
-                <p><strong>Status:</strong> <span className={`badge ${docs.verificationStatus}`}>{docs.verificationStatus}</span></p>
+            <div className="space-y-3">
+                <p><span className="font-semibold text-gray-500 block">Address</span> {data.address?.fullAddress || 'N/A'}</p>
+                <p><span className="font-semibold text-gray-500 block">Type</span> {data.restaurantType}</p>
+                <p><span className="font-semibold text-gray-500 block">Status</span> 
+                   <span className={`inline-block px-2 py-0.5 rounded text-xs uppercase font-bold ml-1 ${data.isEmailVerified ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                     {data.isEmailVerified ? 'Approved' : 'Pending'}
+                   </span>
+                </p>
             </div>
         </div>
 
-        <hr style={{ margin: '20px 0', borderTop: '1px solid #e2e8f0' }} />
+        <div className="my-8 border-t border-gray-100" />
 
-        <h3>Verification Documents</h3>
-        <div className="grid-cols-1 grid-cols-2" style={{ display: 'grid', gap: '20px' }}>
+        <h3 className="text-lg font-bold text-gray-900 mb-4">Verification Documents</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
                 { label: 'Business License', url: docs.businessLicense?.imageUrl },
                 { label: 'Food Hygiene', url: docs.foodHygieneCertificate?.imageUrl },
                 { label: 'VAT Certificate', url: docs.vatCertificate?.imageUrl },
                 { label: 'Bank Details', url: docs.bankDetails?.bankDetailsImageUrl }
             ].map((doc, idx) => (
-                <div key={idx} style={{ border: '1px solid #e2e8f0', padding: '10px', borderRadius: '8px' }}>
-                    <p style={{ fontWeight: 600 }}>{doc.label}</p>
+                <div key={idx} className="border border-gray-200 p-4 rounded-xl">
+                    <p className="font-semibold text-sm mb-2">{doc.label}</p>
                     {doc.url ? (
                         <a href={doc.url} target="_blank" rel="noreferrer">
-                            <img src={doc.url} alt={doc.label} style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '4px' }} />
+                            <img src={doc.url} alt={doc.label} className="w-full h-40 object-cover rounded-lg hover:opacity-90 transition-opacity" />
                         </a>
-                    ) : <p style={{ color: 'red' }}>Not Uploaded</p>}
+                    ) : <p className="text-red-500 text-xs italic">Not Uploaded</p>}
                 </div>
             ))}
         </div>
 
-        {docs.verificationStatus === 'pending' && (
-            <div style={{ marginTop: '30px', background: '#f8fafc', padding: '20px', borderRadius: '8px' }}>
-                <h3>Action Required</h3>
+        {/* CONDITION CHANGED: Show buttons if NOT verified */}
+        {!data.isEmailVerified && (
+            <div className="mt-8 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                <h3 className="font-bold text-slate-800 mb-2">Verification Decision</h3>
+                <p className="text-xs text-slate-500 mb-3">
+                   <strong>Approve:</strong> Enables login and activates restaurant.<br/>
+                   <strong>Reject:</strong> Sends email with reason and permanently deletes application.
+                </p>
                 <textarea 
-                    placeholder="Add remarks (optional for rejection)" 
+                    placeholder="Enter reason for rejection (required) or approval notes (optional)..." 
                     value={remarks}
                     onChange={e => setRemarks(e.target.value)}
                     rows="3"
+                    className="w-full p-3 border border-slate-300 rounded-lg text-sm mb-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
                 ></textarea>
-                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                    <button onClick={() => handleVerification('approved')} className="btn btn-success" style={{ flex: 1 }}>Approve</button>
-                    <button onClick={() => handleVerification('rejected')} className="btn btn-danger" style={{ flex: 1 }}>Reject</button>
+                <div className="flex gap-4">
+                    <button onClick={() => handleVerification('approved')} className="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors">
+                        Approve & Activate
+                    </button>
+                    <button onClick={() => handleVerification('rejected')} className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
+                        Reject & Delete
+                    </button>
                 </div>
             </div>
         )}

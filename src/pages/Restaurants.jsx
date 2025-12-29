@@ -31,7 +31,7 @@ const Restaurants = () => {
     <div className="space-y-6">
       {/* Header & Filter */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-slate-900">Restaurants</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Pending Verifications & Restaurants</h1>
         <div className="relative">
           <select 
             value={filter} 
@@ -41,7 +41,6 @@ const Restaurants = () => {
             <option value="">All Statuses</option>
             <option value="pending">Pending Verification</option>
             <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
           </select>
         </div>
       </div>
@@ -68,10 +67,9 @@ const Restaurants = () => {
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="font-bold text-lg text-slate-800">{rest.restaurantName}</h3>
                     <span className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                      ${rest.documents?.verificationStatus === 'approved' ? 'bg-green-100 text-green-700' : 
-                        rest.documents?.verificationStatus === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}
+                      ${rest.isEmailVerified ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}
                     `}>
-                      {rest.documents?.verificationStatus || 'Unknown'}
+                      {rest.isEmailVerified ? 'Approved' : 'Pending'}
                     </span>
                   </div>
                   <p className="text-slate-500 text-sm mb-4">Owner: {rest.ownerFullName}</p>
